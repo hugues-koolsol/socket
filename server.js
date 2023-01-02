@@ -1,11 +1,7 @@
 /*
 >npm install ws
-
-
 WebSocket server example
-
 The 'public' directory contains a p5.js sketch and HTML page that will connect to this server and put the sensor data in the HTML page.
-
 created 11 Nov 2017
 by Tom Igoe
 */
@@ -95,25 +91,6 @@ function	envoyerMessageAuClient(data,client){
  	 clients[c].send(toto);
   }
  }
-}
-
-// This function broadcasts messages to all webSocket clients
-function broadcast(data,client) {
-	// iterate over the array of clients & send data to each
- var i=0;
-	for(c in clients){
-  console.log('c=',c,'clients[c]=',clients[c],'client=',client);
-	 clients[c].send(
-   JSON.stringify(
-    {
-     moi:'oui',
-     data:data,
-//     client:client,
-     c:c
-    }
-   )
-  );
-	}
 }
 
 // listen for clients and handle them:
