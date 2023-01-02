@@ -1,0 +1,125 @@
+<!DOCTYPE HTML>
+<html>
+   <head>
+   <title>test websocket</title>
+   <meta charset="utf-8" />
+   </head>
+   <body>
+      <div id="zoneId">
+       votreId:<span id="votreId">null</span>
+      </div>
+      <div id="zoneconnexion">
+       <a href="javascript:demarrer()">Demarrer une connexion</a>
+      </div>
+      <br />
+      
+      <br />
+      <div id="zoneEnvoyerMessage" style="display:none;" >
+       echo : <input id="message01" value="test" /><a id="boutonEnvoyerMessage" href="javascript:envoyerEchoAuServeur('envoyer echo')">envoyer</a>
+       <br />
+       broadcast : <input id="message02" value="broadcast" /><a id="boutonEnvoyerBroadcast" href="javascript:envoyerBroadcastAuServeur('envoyer broadcast')">envoyer</a>
+      </div>
+      <a href="javascript:viderLesLogs()">Vider les logs</a>
+      <pre id="see" style="white-space: break-spaces;min-height:1em;border:2px #ddd inset;overflow-y:scroll;min-height:2em;max-height:50vh;padding-bottom: 1em;"></pre>
+<script type = "text/javascript">
+
+"use strict"
+
+var ws=null;
+var idConnexion=null;
+
+function viderLesLogs(){
+ document.getElementById('see').innerHTML='';
+}
+
+function myMessage(t){
+ document.getElementById('see').innerHTML+='\n===============================\n'+t
+ document.getElementById('see').scrollTo(0,100000);
+}
+      
+function arreter(t){
+ ws.close(1000,JSON.stringify({'type':'finConnexion','message':'Connexion fermée par l\'utilisateur'}));
+ myMessage(t);
+}
+function envoyerBroadcastAuServeur(t){
+ var aEnvoyer=''+JSON.stringify({'type':'broadcast',idConnexion:idConnexion,'data':{'contenuChamp':document.getElementById('message02').value}});
+ console.log('aEnvoyer=',aEnvoyer, typeof aEnvoyer);
+ ws.send(aEnvoyer);
+ myMessage(t);
+}
+
+function envoyerEchoAuServeur(t){
+ var aEnvoyer=''+JSON.stringify({'type':'echo',idConnexion:idConnexion,'data':{'contenuChamp':document.getElementById('message01').value}});
+ console.log('aEnvoyer=',aEnvoyer, typeof aEnvoyer);
+ ws.send(aEnvoyer);
+ myMessage(t);
+}
+      
+
+function traiterErreur(evt){
+ if(evt.target.readyState===3){
+  myMessage("la connexion est fermée"+JSON.stringify(evt));
+  document.getElementById('zoneEnvoyerMessage').style.display='none';
+ }else{
+   myMessage("autre erreur"+JSON.stringify(evt));
+ }
+}
+function demarrer(){
+ if(!("WebSocket" in window)){
+   myMessage("WebSocket NOT supported by your Browser!");
+ }else{
+  ws = new WebSocket("ws://localhost:9998/echo");
+  console.log('ws=',ws);
+
+  ws.onerror = traiterErreur;
+//  myMessage("ws="+JSON.stringify(ws));
+
+  ws.onopen = function(data) {
+   document.getElementById('zoneEnvoyerMessage').style.display='';
+   document.getElementById('zoneconnexion').innerHTML='<a href="javascript:arreter(\'Arrêter une connexion\')">Arrêter une connexion</a>';
+   myMessage("la connexion est établie avec le serveur, data=" + JSON.stringify(data));
+  };
+
+  ws.onmessage=function(evt) { 
+   console.log(evt);
+   var data=JSON.parse(evt.data);
+   console.log('data=',data);
+   if(data.hasOwnProperty('type')){
+    if(data.type==='etablissement de la connexion'){
+     idConnexion=data.idConnexion;
+     console.log('vous avez un id de connexion = ',idConnexion);
+     document.getElementById('votreId').innerHTML=idConnexion;
+    }else if(data.type==='echo'){
+     myMessage('echo reçu du serveur data='+JSON.stringify(data)+'\n'+JSON.stringify(data.data));
+    }else if(data.type==='broadcast'){
+     myMessage('broadcast reçu du serveur data='+JSON.stringify(data)+'\n'+JSON.stringify(data.data));
+    }
+   }
+//   console.log(evt,data);
+   
+//     myMessage("Le client reçoit un message du serveur : "+JSON.stringify( JSON.parse(evt.data)));
+  };
+
+  ws.onclose=function(evt) { 
+   document.getElementById('zoneEnvoyerMessage').style.display='none';
+   myMessage("fermeture ws="+JSON.stringify(ws) + '\nevt=' + JSON.stringify(evt));
+   ws=null;
+   idConnexion=null;
+   document.getElementById('votreId').innerHTML=idConnexion;
+   document.getElementById('zoneconnexion').innerHTML='<a href="javascript:demarrer()">Demarrer une connexion</a>';
+
+  };
+  
+  
+ }
+
+}
+
+if(!("WebSocket" in window)){
+  myMessage("WebSocket NOT supported by your Browser!");
+}else{
+}
+</script>
+      
+   </body>
+</html>
