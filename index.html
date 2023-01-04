@@ -18,6 +18,10 @@
        echo : <input id="message01" value="test" /><a id="boutonEnvoyerMessage" href="javascript:envoyerEchoAuServeur('envoyer echo')">envoyer</a>
        <br />
        broadcast : <input id="message02" value="broadcast" /><a id="boutonEnvoyerBroadcast" href="javascript:envoyerBroadcastAuServeur('envoyer broadcast')">envoyer</a>
+       <br />
+       connecter Alice : <a id="connecterAlice" href="javascript:connecterUtilisateur('Alice')">Connecter Alice</a> , &nbsp; &nbsp;
+       connecter Bob   : <a id="connecterBob" href="javascript:connecterUtilisateur('Bob')">Connecter bob</a>
+       
       </div>
       <a href="javascript:viderLesLogs()">Vider les logs</a>
       <pre id="see" style="white-space: break-spaces;min-height:1em;border:2px #ddd inset;overflow-y:scroll;min-height:2em;max-height:50vh;padding-bottom: 1em;"></pre>
@@ -27,6 +31,13 @@
 
 var ws=null;
 var idConnexion=null;
+
+function connecterUtilisateur(qui){
+ var aEnvoyer=''+JSON.stringify({'type':'connecterUtilisateur',idConnexion:idConnexion,'data':{'qui':qui}});
+ console.log('aEnvoyer=',aEnvoyer, typeof aEnvoyer);
+ ws.send(aEnvoyer);
+ myMessage('connecter qui : '+ qui );
+}
 
 function viderLesLogs(){
  document.getElementById('see').innerHTML='';
@@ -93,6 +104,12 @@ function demarrer(){
      myMessage('echo reçu du serveur data='+JSON.stringify(data)+'\n'+JSON.stringify(data.data));
     }else if(data.type==='broadcast'){
      myMessage('broadcast reçu du serveur data='+JSON.stringify(data)+'\n'+JSON.stringify(data.data));
+    }else if(data.type==='connexionUtilisateur'){
+     myMessage('connexionUtilisateur reçu du serveur data='+JSON.stringify(data)); // +'\n'+JSON.stringify(data.data)
+    }else if(data.type==='deconnexionAutreUtilisateur'){
+     myMessage('deconnexionAutreUtilisateur reçu du serveur data='+JSON.stringify(data)); // +'\n'+JSON.stringify(data.data)
+    }else{
+     myMessage('message non traité reçu du serveur: data=='+JSON.stringify(data));
     }
    }
 //   console.log(evt,data);

@@ -26,6 +26,7 @@ function handleConnection(client, request) {
 //	console.log("New Connection" , client);        // you have a new client
  idConnexion=getUniqueID();
  client.idConnexion=idConnexion;
+ client.utilisateur='';
 	clients.push(client);    // add this client to the clients array
 // console.log('clients=',clients);
 	for(var c in clients){
@@ -47,6 +48,25 @@ function handleConnection(client, request) {
   }catch(e){
   }
   var position = clients.indexOf(client);
+  if(client.utilisateur!==''){
+   console.log('deconnexion client.utilisateur='+client.utilisateur);
+   for(c in clients){
+    if(clients[c].idConnexion!=client.idConnexion){
+     clients[c].send(
+      JSON.stringify(
+       {
+        type:'deconnexionAutreUtilisateur',
+        data:JSON.parse(data),
+   //     client:client,
+        c:c,
+        'autreUtilisateur':client.utilisateur
+       }
+      )
+     );
+    }
+   }
+   
+  }
   clients.splice(position, 1);
   console.log("connection closed "+JSON.stringify(code) );
  }
@@ -59,9 +79,39 @@ function handleConnection(client, request) {
   console.log('parsé=',JSON.parse(data));
   var recu=JSON.parse(data);
 		console.log('request.connection.remoteAddress='+request.connection.remoteAddress,'\n' + 'recu=' , recu);
+  
   if(recu.type==='echo'){
-		 envoyerMessageAuClient(JSON.stringify(recu),client);
+   
+//		 envoyerMessageAuClient(JSON.stringify(recu),client);
+   for(c in clients){
+    if(clients[c].idConnexion==client.idConnexion){
+     var toto=JSON.stringify({'type':'echo',data:data});
+     clients[c].send(toto);
+    }
+   }
+
+  }else if(recu.type==='connecterUtilisateur'){
+   
+   for(c in clients){
+//    console.log('c=',c,'clients[c]=',clients[c],'client=',client);
+    if(clients[c].idConnexion==client.idConnexion){
+     clients[c].utilisateur=recu.data.qui;
+    }else{
+     clients[c].send(
+      JSON.stringify(
+       {
+        type:'connexionUtilisateur',
+        data:JSON.parse(data),
+   //     client:client,
+        c:c
+       }
+      )
+     );
+    }
+   }
+   
   }else if(recu.type==='broadcast'){
+   
    for(c in clients){
 //    console.log('c=',c,'clients[c]=',clients[c],'client=',client);
     clients[c].send(
