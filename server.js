@@ -82,7 +82,6 @@ function handleConnection(client, request) {
   
   if(recu.type==='echo'){
    
-//		 envoyerMessageAuClient(JSON.stringify(recu),client);
    for(c in clients){
     if(clients[c].idConnexion==client.idConnexion){
      var toto=JSON.stringify({'type':'echo',data:data});
@@ -134,14 +133,6 @@ function handleConnection(client, request) {
 	client.on('close', endClient);
 }
 
-function	envoyerMessageAuClient(data,client){
-	for(c in clients){
-  if(clients[c].idConnexion==client.idConnexion){
-   var toto=JSON.stringify({'type':'echo',data:data});
- 	 clients[c].send(toto);
-  }
- }
-}
 
 // listen for clients and handle them:
 wss.on('connection', handleConnection);
