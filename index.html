@@ -83,7 +83,6 @@ function demarrer(){
   console.log('ws=',ws);
 
   ws.onerror = traiterErreur;
-//  myMessage("ws="+JSON.stringify(ws));
 
   ws.onopen = function(data) {
    document.getElementById('zoneEnvoyerMessage').style.display='';
@@ -101,9 +100,9 @@ function demarrer(){
      console.log('vous avez un id de connexion = ',idConnexion);
      document.getElementById('votreId').innerHTML=idConnexion;
     }else if(data.type==='echo'){
-     myMessage('echo reçu du serveur data='+JSON.stringify(data)+'\n'+JSON.stringify(data.data));
+     myMessage('echo reçu du serveur data='+JSON.stringify(data));
     }else if(data.type==='broadcast'){
-     myMessage('broadcast reçu du serveur data='+JSON.stringify(data)+'\n'+JSON.stringify(data.data));
+     myMessage('broadcast reçu du serveur data='+JSON.stringify(data));
     }else if(data.type==='connexionUtilisateur'){
      myMessage('connexionUtilisateur reçu du serveur data='+JSON.stringify(data)); // +'\n'+JSON.stringify(data.data)
     }else if(data.type==='deconnexionAutreUtilisateur'){
@@ -112,9 +111,6 @@ function demarrer(){
      myMessage('message non traité reçu du serveur: data=='+JSON.stringify(data));
     }
    }
-//   console.log(evt,data);
-   
-//     myMessage("Le client reçoit un message du serveur : "+JSON.stringify( JSON.parse(evt.data)));
   };
 
   ws.onclose=function(evt) { 

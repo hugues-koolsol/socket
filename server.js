@@ -84,7 +84,7 @@ function handleConnection(client, request) {
    
    for(c in clients){
     if(clients[c].idConnexion==client.idConnexion){
-     var toto=JSON.stringify({'type':'echo',data:data});
+     var toto=JSON.stringify({'type':'echo',recu:recu});
      clients[c].send(toto);
     }
    }
